@@ -1,0 +1,20 @@
+{
+  "name": "@ofrenda/rescue",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stagehand \"rescue a lost page\" (SPEC §9, built in T13).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

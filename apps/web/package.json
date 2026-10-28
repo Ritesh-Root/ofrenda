@@ -1,0 +1,15 @@
+{
+  "name": "@ofrenda/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Next.js App Router ofrenda page (SPEC §10). T01 scaffold: tsconfig only; next, Auth0, the font package and the `dev`/`build`/`typecheck` scripts arrive in T08.",
+  "dependencies": {
+    "@ofrenda/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

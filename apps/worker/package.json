@@ -1,0 +1,19 @@
+{
+  "name": "@ofrenda/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Temporal worker and ingest workflow (SPEC §7). T01 scaffold: tsconfig only; the first source file and the `typecheck`/`test` scripts arrive in T06.",
+  "scripts": {
+    "dev": "tsx src/worker.ts"
+  },
+  "dependencies": {
+    "@ofrenda/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

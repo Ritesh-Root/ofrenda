@@ -1,0 +1,20 @@
+{
+  "name": "@ofrenda/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Config, offline guard, model access, DB schema and queries, hybrid search, ingest activities, grounded answer.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

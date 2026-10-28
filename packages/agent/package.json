@@ -1,0 +1,23 @@
+{
+  "name": "@ofrenda/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mastra agent for the ofrenda (SPEC §8).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@ofrenda/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@ofrenda/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The `ofrenda` command (SPEC §9). T01 scaffold: scripts and tsconfig only; the first source file, the `typecheck`/`test` scripts and the tsx dev dependency arrive in T03.",
+  "bin": {
+    "ofrenda": "./src/bin/ofrenda.ts"
+  },
+  "scripts": {
+    "dev": "tsx src/bin/ofrenda.ts"
+  },
+  "dependencies": {
+    "@ofrenda/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}
