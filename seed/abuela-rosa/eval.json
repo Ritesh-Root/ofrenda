@@ -1,0 +1,17 @@
+{
+  "_note": "Grounded-answer eval for Rosa's ofrenda. 'expect' = memory ids that must be cited (any one counts as correct). 'found:false' = unanswerable: the ofrenda must say nobody told it. Pass bar (SPEC §6): >=10/12 correct 'found', 100% valid citations, 0 invented names or numbers.",
+  "questions": [
+    { "q": "What did she cook on Sundays?", "lang": "en", "found": true, "expect": ["m1"] },
+    { "q": "¿Dónde vendía chocolate?", "lang": "es", "found": true, "expect": ["m2"] },
+    { "q": "What song did she sing while washing dishes?", "lang": "en", "found": true, "expect": ["m3"] },
+    { "q": "¿Qué le decía a Ana cuando le iba mal?", "lang": "es", "found": true, "expect": ["m4"] },
+    { "q": "Where did she take the family on the first Sunday of the year?", "lang": "en", "found": true, "expect": ["m5"] },
+    { "q": "Who was the small bread on the floor for?", "lang": "en", "found": true, "expect": ["m6"] },
+    { "q": "¿Por qué nunca corría?", "lang": "es", "found": true, "expect": ["m7"] },
+    { "q": "Why did the petal path have to be straight?", "lang": "en", "found": true, "expect": ["m8"] },
+    { "q": "What was her husband's name?", "lang": "en", "found": false, "expect": [] },
+    { "q": "¿Cuál era su color favorito?", "lang": "es", "found": false, "expect": [] },
+    { "q": "Did she ever travel to the United States?", "lang": "en", "found": false, "expect": [] },
+    { "q": "What did she die of?", "lang": "en", "found": false, "expect": [] }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "_note": "FICTIONAL demo person. Rosa Elena Méndez Cruz and her family do not exist. Replace with real family data only on a private machine.",
+  "id": "rosa-mendez",
+  "name": "Rosa Elena Méndez Cruz",
+  "shortName": "Rosa",
+  "calledBy": ["Abuela Rosa", "Doña Rosa", "Mamá Rosa"],
+  "born": { "year": 1938, "place": "Barrio de Jalatlaco, Oaxaca de Juárez" },
+  "died": { "year": 2019, "month": 11, "place": "Oaxaca de Juárez" },
+  "trade": "Sold chocolate and pan de yema from a stall in the Mercado 20 de Noviembre, 1961–2004",
+  "languages": ["es", "zapoteco (a few words, from her mother)"],
+  "portrait": "../../design/assets/rosa-linocut.png",
+  "portraitNote": "Illustration generated with Canva for the demo; not a photograph of a real person.",
+  "family": [
+    { "id": "lupita", "name": "Guadalupe (Lupita)", "relation": "daughter", "hue": 340 },
+    { "id": "mateo", "name": "Mateo", "relation": "grandson", "hue": 190 },
+    { "id": "chucho", "name": "Jesús (Tío Chucho)", "relation": "younger brother", "hue": 40 },
+    { "id": "ana", "name": "Ana Sofía", "relation": "granddaughter", "hue": 110 }
+  ]
+}

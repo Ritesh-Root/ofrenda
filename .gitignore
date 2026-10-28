@@ -1,0 +1,17 @@
+node_modules/
+.pnpm-store/
+dist/
+.next/
+.turbo/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.taste-skill/
+# whisper models and big binaries
+models/
+*.gguf
+# keep design screenshots out of git; regenerate with inspect.mjs
+design/.taste-skill/

@@ -1,0 +1,66 @@
+OFRENDA CLI ALTAR: art, colour map, animation
+=================================================
+
+Rendered by `ofrenda altar [--person rosa-mendez] [--still]`. 64 columns wide, fits an 80x24 terminal.
+Colour by role (see COLOUR MAP). Letters in the art are role codes, NOT printed:
+the renderer replaces each glyph with itself and paints it with the role of the matching
+cell in the MASK below. Keep the art and the mask the same width, line for line.
+
+ART (frame 0)
+-------------
+ /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+ |[o o]|  |{*}|  |[o o]|  |{*}|  |[o o]|  |{*}|  |[o o]|  |{*}|
+ | \=/ |  | * |  | \=/ |  | * |  | \=/ |  | * |  | \=/ |  | * |
+ \/\/\/\  \/\/\  \/\/\/\  \/\/\  \/\/\/\  \/\/\  \/\/\/\  \/\/\
+                     .-----------------------.
+                     |   ROSA ELENA MÉNDEZ   |
+                     |      1938 ◆ 2019      |
+                     |   Jalatlaco, Oaxaca   |
+                     '-----------------------'
+          ,            ,                       ,            ,
+         (^)          (^)                     (^)          (^)
+         |~|  @@  mole negro    chocolate  @@  |~|          |~|
+   ======|_|================================================|_|=====
+         @@   pan de yema   Canción Mixteca   pan de muerto  @@
+   ==================================================================
+     @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @  @
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       8 stories · told by Lupita, Chucho, Mateo, Ana Sofía
+       ofrenda ask "what did she cook on Sundays?"
+
+MASK (same geometry; one code per cell)
+---------------------------------------
+P = papel picado, cycles R/F/T per flag   N = name card text     C = candle wax
+L = flame (animated)                       M = marigold @          I = item text
+S = altar shelf =                          W = petal path ~        H = hint/footer text
+. = no colour (terminal default)
+
+COLOUR MAP (ANSI 256 / truecolor; from design/tokens.css)
+---------------------------------------------------------
+role   token          truecolor   ansi256  notes
+R      --rosa         #b0124f     125      flags (rosa)
+F      --flor         #f29a0e     214      flags (marigold), marigolds M, flame L
+T      --turquesa     #0b5f5b     23       flags (turquesa)
+N      --paper        #f3f2ef     255      name card; bold for the name line
+C      --paper-2      #e6e3dd     254      candle wax
+I      --paper        #f3f2ef     255      item names, italic if the terminal supports it
+S      --muted        #5b5048     95       shelves
+W      --flor         #f29a0e     214      petal path
+H      --night-muted  #c9bfb2     250      footer hint; dim
+Fallback: NO_COLOR=1 or a non-TTY prints the art uncoloured. --still disables animation.
+
+ANIMATION
+---------
+Flame frames, 180 ms each, random phase per candle (never in sync):
+  frame 0:  (^)     frame 1:  (')     frame 2:  (^)     frame 3:  (`)
+  frame 1 and 3 dim the flame colour one step (ansi 208 / 172).
+Petal path: every 600 ms shift the ~ row one cell to the left (a slow drift toward the altar).
+Papel picado: every 900 ms swap \/ and /\ on the scalloped top edge (a breath of wind).
+Stop all animation after 12 s or on any key, then leave the still frame on screen.
+Respect reduced motion: OFRENDA_STILL=1 or --still.
+
+ITEM LINES
+----------
+The two item rows are generated: up to 3 food items on the top shelf, then up to 3 of
+song/place/ritual on the lower shelf, from the person's ofrenda_items (most-cited first).
+Truncate each to 16 chars with an ellipsis. Centre each row between the candles.

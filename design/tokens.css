@@ -1,0 +1,59 @@
+/* Ofrenda design tokens. Single source of truth for CLI colour map, web app and OG art.
+   Direction: "the page is the object" (taste-skill seed 811240444). The object is the recordatorio,
+   the memorial card handed out at a novena. Colours come from the ofrenda itself:
+   papel de china (rosa mexicano), cempasúchil, candle wax, copal night, turquesa papel picado.
+   House rules: flat fills only. No gradients, no shadows at rest, no glows, no hairline rules,
+   no monospace outside code. One accent (cempasúchil) per screen: the primary action or one mark. */
+
+:root {
+  /* Ground and paper */
+  --field: #b0124f;          /* rosa mexicano: the ground the card lies on (paper text 6.2:1) */
+  --paper: #f3f2ef;          /* candle wax, a cool bone (not cream): the card, the sheets */
+  --paper-2: #e6e3dd;        /* one tone step down: a surface on paper */
+  --ink: #1c1613;            /* copal night: type, the ink button, night fields */
+  --muted: #5b5048;          /* secondary text on paper (7.0:1) */
+  --accent: #f29a0e;         /* cempasúchil: one mark per screen; ink text on it */
+  --accent-ink: #1c1613;
+
+  /* Whole-section fields (flip the page like a two-colour print job) */
+  --night: #1c1613;   --night-ink: #f3f2ef;   --night-muted: #c9bfb2;
+  --rosa: #b0124f;    --rosa-ink: #f3f2ef;
+  --flor: #f29a0e;    --flor-ink: #1c1613;
+  --turquesa: #0b5f5b; --turquesa-ink: #f3f2ef;
+
+  /* Storyteller tints (identity, never data). Pale, stable per person. */
+  --who-lupita: #f3d3df;
+  --who-mateo: #cfe7e9;
+  --who-chucho: #f6e2bf;
+  --who-ana: #d9ebcf;
+
+  /* Type: one family, STIX Two Text. Self-host in the app (@fontsource/stix-two-text) so it works offline. */
+  --font: "STIX Two Text", "STIX Two", Georgia, "Times New Roman", serif;
+  /* Five steps, no others. */
+  --step-small: 15px;                                          /* captions, notes, who-told-it, imprint */
+  --step-body: clamp(1.125rem, 1.07rem + 0.25vw, 1.25rem);     /* 18-20px: running text, links, buttons */
+  --step-lead: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);      /* 22-26px: bands, item groups, facts, statements */
+  --step-head: clamp(2.25rem, 1.6rem + 2.2vw, 3.25rem);        /* 36-52px: section headings */
+  --step-name: clamp(3.25rem, 1.6rem + 5.6vw, 5.5rem);         /* 52-88px: her name, the two big headings */
+  --track-display: -0.026em;
+  --lead-display: 1.1;
+  --lead-text: 1.45;
+
+  /* Space and frame */
+  --margin: clamp(16px, 2.2vw, 32px);   /* one pair of outer margins, everywhere */
+  --gutter: clamp(16px, 2vw, 28px);
+  --section-gap: clamp(96px, 12vw, 200px);
+  --radius: 0;                          /* square corners; shape comes from scallops and notches */
+  --scallop: 22px;                      /* corner scallop radius on cards */
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur-enter: 720ms;
+  --stagger: 80ms;
+  --rise: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-enter: 1ms; --stagger: 0ms; --rise: 0px; }
+}
