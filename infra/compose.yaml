@@ -1,0 +1,71 @@
+# Ofrenda dev services (SPEC §2). Local and disposable: everything here can be wiped with
+# `podman compose -f infra/compose.yaml down -v` and rebuilt from this file.
+#
+# Pinned images (pulled and inspected on 2026-10-29):
+#   timescale/timescaledb-ha:pg17.11-ts2.31.0  — the concrete tag that SPEC §2's `pg17` line
+#                                                 resolves to; pgvector + pgvectorscale + pg_textsearch
+#   openfga/openfga:v1.22.1
+#   temporalio/temporal:1.9.1                  — SPEC §2's image; it is the Temporal CLI image
+#                                                 (temporalio/cli 1.9.1, embedded server 1.32.0), which
+#                                                 is what provides `server start-dev`. The plain
+#                                                 `temporalio/server` image has no dev server, only
+#                                                 `start` with a config file.
+#
+# Every port binds to 127.0.0.1: nothing here is reachable from the LAN.
+
+name: ofrenda
+
+services:
+  db:
+    image: docker.io/timescale/timescaledb-ha:pg17.11-ts2.31.0
+    container_name: ofrenda-db
+    environment:
+      POSTGRES_USER: ofrenda
+      POSTGRES_PASSWORD: ofrenda
+      POSTGRES_DB: ofrenda
+      # timescaledb-ha keeps PGDATA outside the default location.
+      PGDATA: /home/postgres/pgdata/data
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - ofrenda-pgdata:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ofrenda", "-d", "ofrenda"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  openfga:
+    image: docker.io/openfga/openfga:v1.22.1
+    container_name: ofrenda-openfga
+    command: ["run"]
+    environment:
+      OPENFGA_DATASTORE_ENGINE: memory
+      OPENFGA_LOG_FORMAT: json
+    ports:
+      - 127.0.0.1:8080:8080   # HTTP API + /healthz
+      - 127.0.0.1:8081:8081   # gRPC (used by @openfga/sdk)
+      - 127.0.0.1:3000:3000   # OpenFGA Playground
+    # No compose healthcheck: the image is distroless (no shell, no wget/curl) and openfga 1.22
+    # has no healthcheck subcommand, so nothing inside the container can probe the server.
+    # Readiness is `curl 127.0.0.1:8080/healthz` -> {"status":"SERVING"} from the host, which is
+    # what `ofrenda doctor` does (T03).
+    restart: unless-stopped
+
+  temporal:
+    image: docker.io/temporalio/temporal:1.9.1
+    container_name: ofrenda-temporal
+    command: ["server", "start-dev", "--ip", "0.0.0.0"]
+    ports:
+      - 127.0.0.1:7233:7233   # frontend gRPC
+      - 127.0.0.1:8233:8233   # web UI
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health", "--address", "127.0.0.1:7233"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+volumes:
+  ofrenda-pgdata:
