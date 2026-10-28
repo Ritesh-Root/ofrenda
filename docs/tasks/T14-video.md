@@ -1,7 +1,7 @@
 # T14: Demo video with narration
 
 **Depends on:** V2  
-**Skills to load:** hyperframes, ai-narrated-video  
+**Skills to load:** ai-narrated-video, product-video-script  
 **Read first:** AGENTS.md, docs/SPEC.md (sections named below), design/DESIGN.md for any UI.
 
 ## Goal
