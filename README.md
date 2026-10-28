@@ -24,8 +24,9 @@ pnpm --version        # 11.19.0
 podman --version
 ollama --version
 
-# 2. Workspace. `pnpm i` is enough; there is no build step for the libraries (the CLI and worker run
-#    their TypeScript through tsx, the web app compiles itself with Next).
+# 2. Workspace. `pnpm i` is enough to start working: the CLI and the worker run their TypeScript
+#    through tsx and the web app compiles itself with Next. `pnpm build` emits the libraries to each
+#    package's dist/ with tsc, which nothing consumes yet.
 pnpm i
 pnpm -r typecheck
 pnpm -r test
