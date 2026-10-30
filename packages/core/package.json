@@ -17,6 +17,7 @@
     "eval": "tsx src/eval.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "2.0.88",
     "ai": "6.0.317",
     "nodejs-whisper": "0.4.1",
     "ollama-ai-provider-v2": "3.6.0",

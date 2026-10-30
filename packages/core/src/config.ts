@@ -9,7 +9,32 @@
  * fails loudly with the variable's name rather than turning into a mysterious undefined later.
  */
 
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
 import { z } from 'zod';
+
+/**
+ * Load the repo's `.env` (the one next to pnpm-workspace.yaml) into `process.env`, once. Variables
+ * already set in the environment win. Only `getConfig()` calls this, so `loadConfig({...})` in tests
+ * stays pure.
+ */
+let envLoaded = false;
+export function loadDotEnv(start = process.cwd()): string | undefined {
+  if (envLoaded) return undefined;
+  envLoaded = true;
+  for (let dir = start; ; dir = dirname(dir)) {
+    if (existsSync(join(dir, 'pnpm-workspace.yaml'))) {
+      const file = join(dir, '.env');
+      if (existsSync(file)) {
+        process.loadEnvFile(file);
+        return file;
+      }
+      return undefined;
+    }
+    if (dirname(dir) === dir) return undefined;
+  }
+}
 
 /** `'1'` enables, `'0'` disables. Everything else is a configuration error. */
 const flag = z.enum(['0', '1']);
@@ -21,11 +46,24 @@ const optionalText = z
   .optional()
   .transform((value) => (value === '' ? undefined : value));
 
+/**
+ * Where the open-weight models run. `featherless` (default) serves them serverless over an
+ * OpenAI-compatible API, so nothing has to fit on the family's GPU; `ollama` runs them on this machine.
+ * Both serve the same open weights: switching is one variable, not a rewrite.
+ */
+export const PROVIDER_DEFAULTS = {
+  featherless: { model: 'google/gemma-4-31B-it', embedModel: 'Qwen/Qwen3-Embedding-0.6B' },
+  ollama: { model: 'gemma3:4b', embedModel: 'embeddinggemma' },
+} as const;
+
 export const envSchema = z.object({
   OFRENDA_OFFLINE: flag.default('0'),
+  OFRENDA_PROVIDER: z.enum(['featherless', 'ollama']).optional(),
+  FEATHERLESS_API_KEY: optionalText,
+  FEATHERLESS_URL: z.string().trim().min(1).default('https://api.featherless.ai/v1'),
   OLLAMA_URL: z.string().trim().min(1).default('http://127.0.0.1:11434'),
-  OFRENDA_MODEL: z.string().trim().min(1).default('gemma3:4b'),
-  OFRENDA_EMBED_MODEL: z.string().trim().min(1).default('embeddinggemma'),
+  OFRENDA_MODEL: optionalText,
+  OFRENDA_EMBED_MODEL: optionalText,
   // Local compose credentials (infra/compose.yaml): user, password and database are all "ofrenda".
   DATABASE_URL: z.string().trim().min(1).default('postgres://ofrenda:ofrenda@127.0.0.1:5432/ofrenda'),
   OFRENDA_STT: z.enum(['local', 'elevenlabs']).default('local'),
@@ -51,6 +89,9 @@ export type Env = z.infer<typeof envSchema>;
 export interface Config {
   /** True when `OFRENDA_OFFLINE=1`: every cloud adapter must refuse to run (SPEC §4). */
   offline: boolean;
+  /** Offline always means `ollama`: Featherless is a cloud service. */
+  provider: 'featherless' | 'ollama';
+  featherless: { apiKey?: string; url: string };
   ollamaUrl: string;
   model: string;
   embedModel: string;
@@ -83,11 +124,15 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     throw new ConfigError(`Invalid Ofrenda configuration: ${details}`);
   }
   const e = parsed.data;
+  const offline = e.OFRENDA_OFFLINE === '1';
+  const provider = offline ? 'ollama' : (e.OFRENDA_PROVIDER ?? 'featherless');
   return {
-    offline: e.OFRENDA_OFFLINE === '1',
+    offline,
+    provider,
+    featherless: { apiKey: e.FEATHERLESS_API_KEY, url: e.FEATHERLESS_URL },
     ollamaUrl: e.OLLAMA_URL,
-    model: e.OFRENDA_MODEL,
-    embedModel: e.OFRENDA_EMBED_MODEL,
+    model: fitsProvider(provider, e.OFRENDA_MODEL) ?? PROVIDER_DEFAULTS[provider].model,
+    embedModel: fitsProvider(provider, e.OFRENDA_EMBED_MODEL) ?? PROVIDER_DEFAULTS[provider].embedModel,
     databaseUrl: e.DATABASE_URL,
     stt: e.OFRENDA_STT,
     tts: e.OFRENDA_TTS,
@@ -107,6 +152,17 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   };
 }
 
+/**
+ * A model name only applies to the provider it belongs to: Featherless ids are Hugging Face repos
+ * (`org/name`), Ollama tags are not. An `.env` written for one provider (OFRENDA_MODEL=gemma3:4b)
+ * must not break the other, so a name that cannot belong to the active provider is ignored.
+ */
+function fitsProvider(provider: 'featherless' | 'ollama', name: string | undefined): string | undefined {
+  if (!name) return undefined;
+  const isRepo = /^[\w.-]+\/[\w.-]+$/.test(name);
+  return provider === 'featherless' ? (isRepo ? name : undefined) : (isRepo ? undefined : name);
+}
+
 export class ConfigError extends Error {
   constructor(message: string) {
     super(message);
@@ -118,6 +174,7 @@ let cached: Config | undefined;
 
 /** The process-wide config object, parsed on first use. */
 export function getConfig(): Config {
+  if (!cached) loadDotEnv();
   cached ??= loadConfig(process.env);
   return cached;
 }

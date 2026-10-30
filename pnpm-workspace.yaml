@@ -3,6 +3,8 @@ packages:
   - apps/*
 minimumReleaseAgeExclude:
   - '@types/node@26.6.6'
+  - '@ai-sdk/openai-compatible@2.0.88'
+  - '@ai-sdk/provider-utils@4.0.63'
 # pnpm 11 renamed the v10 `onlyBuiltDependencies` list to this map (https://pnpm.io/settings/build).
 # `onlyBuiltDependencies` is ignored by pnpm 11.19, so esbuild never built and install exited 1.
 # nodejs-whisper 0.4.1 compiles whisper.cpp in its postinstall; without it `transcribe()` cannot run

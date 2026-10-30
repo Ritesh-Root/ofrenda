@@ -8,7 +8,10 @@
       "lang": "en",
       "year": 1974,
       "text": "Every Sunday my mother started the mole negro before the church bells at Santo Domingo rang for seven o'clock mass. She toasted the chilhuacles until the whole street coughed, and she would laugh and say the neighbours should thank her for clearing their lungs. Nobody was allowed to stir the pot but her. When I was fourteen she finally handed me the wooden spoon and said, 'Now you will never be hungry, and neither will anyone you love.'",
-      "items": ["mole-negro", "santo-domingo"]
+      "items": [
+        "mole-negro",
+        "santo-domingo"
+      ]
     },
     {
       "id": "m2",
@@ -17,7 +20,11 @@
       "lang": "es",
       "year": 1961,
       "text": "Rosa abrió su puesto en el Mercado 20 de Noviembre con un metate prestado y tres kilos de cacao. Molía el chocolate con canela y almendra delante de los clientes, porque decía que la gente compra lo que ve hacer. Yo le cargaba los costales y ella me pagaba con pan de yema. Cuarenta y tres años en el mismo lugar. Cuando cerró, los vecinos del mercado le hicieron una fiesta con banda.",
-      "items": ["chocolate-de-agua", "pan-de-yema", "mercado-20-de-noviembre"]
+      "items": [
+        "chocolate-de-agua",
+        "pan-de-yema",
+        "mercado-20-de-noviembre"
+      ]
     },
     {
       "id": "m3",
@@ -26,7 +33,9 @@
       "lang": "en",
       "year": 2006,
       "text": "Abuela sang 'Canción Mixteca' while she washed dishes, always a little flat on the high part, and she knew it. If you laughed she sang louder. She told me it was the song her father whistled when he walked down from the Sierra to sell coffee. I didn't understand why it made her quiet afterwards until I moved away for university and caught myself humming it on a bus in Monterrey.",
-      "items": ["cancion-mixteca"]
+      "items": [
+        "cancion-mixteca"
+      ]
     },
     {
       "id": "m4",
@@ -35,7 +44,10 @@
       "lang": "es",
       "year": 2015,
       "text": "Cuando reprobé el examen de admisión, la abuela no me consoló. Me puso un chocolate enfrente, me dijo 'al mal tiempo, buena cara, mija' y me mandó a lavarme la cara. Luego me enseñó su libreta de cuentas del puesto: años enteros de números en rojo. 'Mira cuántas veces me fue mal,' me dijo. Al año siguiente pasé.",
-      "items": ["al-mal-tiempo", "chocolate-de-agua"]
+      "items": [
+        "al-mal-tiempo",
+        "chocolate-de-agua"
+      ]
     },
     {
       "id": "m5",
@@ -44,7 +56,10 @@
       "lang": "en",
       "year": 1968,
       "text": "Before there were tour buses, my mother walked us up the road to Monte Albán on the first Sunday of every year. She packed tlayudas and oranges and made us sit on the steps of the ball court to eat. She said the old ones up there were also somebody's grandparents, and that if we ate in front of them we had to say thank you. I still say it, under my breath, every time I'm there.",
-      "items": ["monte-alban", "tlayudas"]
+      "items": [
+        "monte-alban",
+        "tlayudas"
+      ]
     },
     {
       "id": "m6",
@@ -53,7 +68,10 @@
       "lang": "en",
       "year": 2011,
       "text": "Every year on the ofrenda she put one small pan de muerto at the very bottom, on the floor tier, for Canelo, the dog she had as a girl. She was very serious about it. One year our dog ate it during the night and she decided that counted, that Canelo had sent someone to collect it.",
-      "items": ["pan-de-muerto", "canelo"]
+      "items": [
+        "pan-de-muerto",
+        "canelo"
+      ]
     },
     {
       "id": "m7",
@@ -62,7 +80,9 @@
       "lang": "es",
       "year": 1990,
       "text": "Nunca la vi correr. Si llegábamos tarde a misa, a una boda, a lo que fuera, ella caminaba igual de despacio y decía 'hay más tiempo que vida'. Yo me desesperaba. Ahora que soy viejo entiendo que no hablaba del reloj.",
-      "items": ["mas-tiempo-que-vida"]
+      "items": [
+        "mas-tiempo-que-vida"
+      ]
     },
     {
       "id": "m8",
@@ -71,7 +91,33 @@
       "lang": "en",
       "year": 2018,
       "text": "Her last October she couldn't go to the market, so she grew cempasúchil in paint buckets on the roof. She made me lay a line of petals from the front door to the ofrenda, and then she checked it and fixed the corners. 'If the path is crooked they get lost,' she said. I think about that path every year. I lay it straight.",
-      "items": ["cempasuchil", "petal-path"]
+      "items": [
+        "cempasuchil",
+        "petal-path"
+      ]
+    },
+    {
+      "id": "m9",
+      "title": "She opened the stall in 1959",
+      "told_by": "lupita",
+      "lang": "en",
+      "year": 1959,
+      "text": "My mother always said she opened her chocolate stall in 1959, the year they rebuilt the roof of the Mercado 20 de Noviembre, not in 1961. She said Chucho was still in short trousers and only remembers the stall from when he was old enough to carry the sacks. Chucho has argued with me about this every November for thirty years.",
+      "items": [
+        "mercado-20-de-noviembre",
+        "chocolate-de-agua"
+      ]
+    },
+    {
+      "id": "m10",
+      "title": "La Llorona, no la Mixteca",
+      "told_by": "ana",
+      "lang": "es",
+      "year": 2016,
+      "text": "Mateo dice que la abuela cantaba la Canción Mixteca mientras lavaba los trastes. Yo la oí cantar La Llorona, siempre La Llorona, y bajito, como si no quisiera que la oyéramos. Cuando le pregunté por qué esa, me dijo: 'porque así se le canta a los que ya se fueron'.",
+      "items": [
+        "la-llorona"
+      ]
     }
   ]
 }

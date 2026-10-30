@@ -46,6 +46,9 @@ importers:
       '@types/node':
         specifier: 26.6.6
         version: 26.6.6
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -90,6 +93,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@ai-sdk/openai-compatible':
+        specifier: 2.0.88
+        version: 2.0.88(zod@4.6.7)
       ai:
         specifier: 6.0.317
         version: 6.0.317(zod@4.6.7)
@@ -142,8 +148,20 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/openai-compatible@2.0.88':
+    resolution: {integrity: sha512-1TFACX7hi18IVTJxLWRj+lHiidSxer6ERLkejHaa+e8h9ClkiRfBwx1p1e8ElTAWlho5Mg5o7QeIPlfBUYU5+g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider-utils@4.0.62':
     resolution: {integrity: sha512-+FXkZ2e169zASBHP5HAakP0Iai3Eoa8zgh7bnuZExsek3N9HgGt/c7l1Oibdxb79vvsn5Mrg2Sjam80mR6bL8A==}
+    engines: {node: '>=18.17'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider-utils@4.0.63':
+    resolution: {integrity: sha512-QSrfUn7pnb+2EZLLtpkcY6208ZZVi15QEJFyp/1jAYEH2UecthgAsyYWOJbpMSLtraviCByd6ii2meISIhkTZA==}
     engines: {node: '>=18.17'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -1121,7 +1139,21 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.6.7
 
+  '@ai-sdk/openai-compatible@2.0.88(zod@4.6.7)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.19
+      '@ai-sdk/provider-utils': 4.0.63(zod@4.6.7)
+      zod: 4.6.7
+
   '@ai-sdk/provider-utils@4.0.62(zod@4.6.7)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.19
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.1.1
+      undici: 6.29.1
+      zod: 4.6.7
+
+  '@ai-sdk/provider-utils@4.0.63(zod@4.6.7)':
     dependencies:
       '@ai-sdk/provider': 3.0.19
       '@standard-schema/spec': 1.1.0

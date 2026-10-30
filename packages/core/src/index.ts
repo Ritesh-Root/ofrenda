@@ -34,3 +34,6 @@ export * from './adapters/whisper.js';
 
 /** Version of the workspace package, not of the product. */
 export const CORE_PACKAGE_VERSION = '0.0.0';
+export * from './adapters/elevenlabs-tts.js';
+export * from './calavera.js';
+export * from './truths.js';

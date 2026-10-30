@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tell her ofrenda · Ofrenda</title>
+<link rel="icon" href="../svg/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="ofrenda.css">
+<link rel="stylesheet" href="add.css">
+<script>document.documentElement.classList.replace('no-js', 'js')</script>
+</head>
+<body data-person="rosa-mendez">
+<main>
+  <header class="add-top">
+    <nav class="top" aria-label="Ofrenda">
+      <a class="mark" href="index.html" aria-label="Back to Rosa's ofrenda">
+        <svg class="mark-flower" aria-hidden="true"><use href="../svg/sprite.svg#marigold"/></svg>
+        <span>Ofrenda</span>
+      </a>
+      <a class="btn btn-ink" href="index.html">Back to her ofrenda</a>
+    </nav>
+  </header>
+
+  <section class="slip" aria-labelledby="slip-h">
+    <div class="slip-card">
+      <div class="slip-head">
+        <img src="../assets/web/rosa.jpg" width="900" height="1115" alt="Linocut portrait of Rosa">
+        <div>
+          <h1 id="slip-h">Tell Rosa's ofrenda a story</h1>
+          <p>One memory at a time: something she cooked, said, sang, or did. Say it the way you would tell it at the table.</p>
+        </div>
+      </div>
+
+      <form class="slip-form" id="story">
+        <fieldset class="who">
+          <legend>Who is telling it?</legend>
+          <label style="--tint: var(--who-lupita)"><input type="radio" name="who" value="lupita" checked><span>Lupita</span><small>her daughter</small></label>
+          <label style="--tint: var(--who-chucho)"><input type="radio" name="who" value="chucho"><span>Chucho</span><small>her brother</small></label>
+          <label style="--tint: var(--who-mateo)"><input type="radio" name="who" value="mateo"><span>Mateo</span><small>her grandson</small></label>
+          <label style="--tint: var(--who-ana)"><input type="radio" name="who" value="ana"><span>Ana Sofía</span><small>her granddaughter</small></label>
+        </fieldset>
+
+        <div class="record" aria-labelledby="rec-h">
+          <h2 id="rec-h">Say it</h2>
+          <button type="button" class="rec-btn" id="rec" aria-pressed="false">
+            <svg class="rec-candle" viewBox="0 0 40 120" aria-hidden="true"><use href="../svg/sprite.svg#candle"/></svg>
+            <span class="rec-label">Start recording</span>
+            <span class="rec-time" aria-live="off">0:00</span>
+          </button>
+          <p class="rec-note">Spanish, English, or both in one breath. Up to ten minutes.</p>
+        </div>
+
+        <div class="type" id="type">
+          <h2>Or write it</h2>
+          <label for="title">A name for this memory</label>
+          <input id="title" type="text" value="The radio in the stall">
+          <label for="text">The story</label>
+          <textarea id="text" rows="6">She kept a little radio at the stall tuned to XEOJN, and when a danzón came on she would stop grinding the cacao and make whoever was buying dance with her before she sold them anything.</textarea>
+        </div>
+
+        <fieldset class="where">
+          <legend>Where it is heard</legend>
+          <label><input type="radio" name="stt" value="elevenlabs" checked><span>ElevenLabs Scribe</span><small>Hears Spanish and English in one breath, and is told the family's names so it spells them right. The recording is sent to ElevenLabs and not kept here.</small></label>
+          <label><input type="radio" name="stt" value="local"><span>Whisper, on this laptop</span><small>For when you are offline. Nothing leaves the machine.</small></label>
+        </fieldset>
+
+        <button class="bar" type="submit">Keep it on her ofrenda</button>
+      </form>
+    </div>
+
+    <aside class="heard" aria-labelledby="heard-h">
+      <h2 id="heard-h">What the ofrenda heard</h2>
+      <p class="heard-note" id="heard-note">Gemma reads the story and finds what belongs on her altar: the foods, songs, places and sayings in it. An example, from a story already kept:</p>
+      <ul class="heard-list" id="heard-list">
+        <li><svg aria-hidden="true"><use href="../svg/sprite.svg#kind-song"/></svg><span class="it">Danzón on the radio</span><span class="kind">What she sang</span></li>
+        <li><svg aria-hidden="true"><use href="../svg/sprite.svg#kind-place"/></svg><span class="it">Her stall, the radio by the metate</span><span class="kind">Where she went</span></li>
+        <li><svg aria-hidden="true"><use href="../svg/sprite.svg#kind-ritual"/></svg><span class="it">A dance before every sale</span><span class="kind">How she kept it</span></li>
+      </ul>
+      <p class="heard-dates" id="heard-status">Linked to <a href="index.html#m2">El puesto de chocolate</a>, told by Chucho in 1961.</p>
+      <figure class="heard-plate">
+        <img src="../assets/web/catrina.jpg" width="1200" height="851" loading="lazy" alt="José Guadalupe Posada's etching of La Calavera Catrina in a wide hat with feathers and flowers">
+        <figcaption>José Guadalupe Posada, <i>La Calavera Catrina</i>, about 1913.</figcaption>
+      </figure>
+    </aside>
+  </section>
+</main>
+<script src="add.js" defer></script>
+</body>
+</html>

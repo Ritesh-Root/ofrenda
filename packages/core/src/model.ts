@@ -17,11 +17,33 @@
  * Both sides must use the same prefix scheme; using one only at query time quietly degrades recall.
  */
 
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { embedMany, generateObject, generateText } from 'ai';
 import { createOllama } from 'ollama-ai-provider-v2';
 import type { z } from 'zod';
 
 import { getConfig, type Config } from './config.js';
+import { assertCloudAllowed } from './offline.js';
+
+/** Vector width stored in `memories.embedding` (schema.sql). */
+export const EMBED_DIM = 768;
+
+/**
+ * Qwen3-Embedding (the Featherless default) is instruction-aware on the query side only: the model
+ * card prescribes `Instruct: {task}\nQuery:{query}` for queries and the raw passage for documents.
+ * Its 1024-d output is Matryoshka-trained, so the first 768 dimensions, re-normalised, are a valid
+ * smaller embedding and fit the same `vector(768)` column EmbeddingGemma uses locally.
+ */
+export const QWEN_QUERY_INSTRUCT =
+  'Instruct: Given a question about a person who has died, retrieve the family stories that answer it\nQuery:';
+
+/** Truncate a Matryoshka embedding to `dim` and L2-normalise it. */
+export function fitDimensions(vector: number[], dim = EMBED_DIM): number[] {
+  if (vector.length < dim) throw new Error(`Embedding has ${vector.length} dimensions, need ${dim}`);
+  const cut = vector.slice(0, dim);
+  const norm = Math.hypot(...cut) || 1;
+  return cut.map((x) => x / norm);
+}
 
 /** Prefix for a search query, from the EmbeddingGemma paper (§2.2). */
 export const QUERY_PREFIX = 'task: search result | query: ';
@@ -111,33 +133,63 @@ export function repairJson(text: string): string | null {
 
 /** Build a `Models` bound to one config (and therefore one Ollama URL and one pair of models). */
 export function createModels(config: Config = getConfig()): Models {
-  const ollama = createOllama({ baseURL: `${config.ollamaUrl}/api` });
-  const chatModel = ollama.chat(config.model);
-  const embedModel = ollama.embedding(config.embedModel);
+  const featherless = config.provider === 'featherless';
+  let chatModel;
+  let embedModel;
+  type ProviderOptions = NonNullable<Parameters<typeof generateText>[0]['providerOptions']>;
+  let chatOptions: ProviderOptions = {};
+  let objectOptions: ProviderOptions = {};
 
-  // 4096 tokens of context: enough for six memories plus a question, and small enough that
-  // gemma3:4b stays on this machine's 4 GB GPU. At 8192 the KV cache pushed most layers onto the
-  // CPU and a single answer took ~40 s instead of ~3 s (measured on the seed eval, 2026-10-29).
-  const chatOptions = { ollama: { options: { num_ctx: 4096, temperature: 0 } } };
+  if (featherless) {
+    assertCloudAllowed('featherless');
+    if (!config.featherless.apiKey) {
+      throw new Error('OFRENDA_PROVIDER=featherless but FEATHERLESS_API_KEY is empty. Set it, or use OFRENDA_PROVIDER=ollama.');
+    }
+    const provider = createOpenAICompatible({
+      name: 'featherless',
+      baseURL: config.featherless.url,
+      apiKey: config.featherless.apiKey,
+      supportsStructuredOutputs: true,
+    });
+    chatModel = provider.chatModel(config.model);
+    embedModel = provider.textEmbeddingModel(config.embedModel);
+  } else {
+    const ollama = createOllama({ baseURL: `${config.ollamaUrl}/api` });
+    chatModel = ollama.chat(config.model);
+    embedModel = ollama.embedding(config.embedModel);
 
-  // Structured output gets the same context but a hard output ceiling. gemma3:4b sometimes answers
-  // and then keeps generating until the context is full (measured: `finishReason: length`, 3301
-  // output tokens, 146 s, truncated JSON on the seed question "Why did the petal path have to be
-  // straight?"). An answer, an item list or a 180-word remembrance is far under 400 tokens, so the
-  // ceiling only cuts runaways: the call fails in seconds instead of two minutes, and `answer.ts`
-  // falls back to quoting the family directly.
-  const objectOptions = {
-    ollama: { options: { num_ctx: 4096, temperature: 0, num_predict: 400 } },
-  };
+    // 4096 tokens of context: enough for six memories plus a question, and small enough that
+    // gemma3:4b stays on this machine's 4 GB GPU. At 8192 the KV cache pushed most layers onto the
+    // CPU and a single answer took ~40 s instead of ~3 s (measured on the seed eval, 2026-10-29).
+    chatOptions = { ollama: { options: { num_ctx: 4096, temperature: 0 } } };
+
+    // Structured output gets a hard output ceiling: gemma3:4b sometimes keeps generating until the
+    // context is full (measured: 3301 output tokens, 146 s, truncated JSON). 400 tokens only cuts
+    // runaways, and `answer.ts` falls back to quoting the family directly.
+    objectOptions = { ollama: { options: { num_ctx: 4096, temperature: 0, num_predict: 400 } } };
+  }
+
+  const docText = (doc: DocumentToEmbed): string =>
+    featherless ? `${doc.title ? `${doc.title}\n` : ''}${doc.text}` : documentPrefix(doc.title, doc.text);
+  const queryText = (text: string): string =>
+    featherless ? `${QWEN_QUERY_INSTRUCT}${text.trim()}` : text;
+  const fit = (vectors: number[][]): number[][] => (featherless ? vectors.map((v) => fitDimensions(v)) : vectors);
 
   const embedDocs = async (docs: DocumentToEmbed[]): Promise<number[][]> => {
     if (docs.length === 0) return [];
     const { embeddings } = await embedMany({
       model: embedModel,
-      values: docs.map((doc) => documentPrefix(doc.title, doc.text)),
-      maxRetries: 1,
+      values: docs.map(docText),
+      maxRetries: 2,
     });
-    return embeddings;
+    return fit(embeddings);
+  };
+
+  const embedQueryRaw = async (text: string): Promise<number[]> => {
+    const { embeddings } = await embedMany({ model: embedModel, values: [queryText(text)], maxRetries: 2 });
+    const [vector] = fit(embeddings);
+    if (!vector) throw new Error('The embedding model returned no vector for the query');
+    return vector;
   };
 
   return {
@@ -146,8 +198,8 @@ export function createModels(config: Config = getConfig()): Models {
         model: chatModel,
         prompt,
         ...(options?.system ? { system: options.system } : {}),
-        temperature: 0,
-        maxRetries: 1,
+        temperature: featherless ? 0.7 : 0,
+        maxRetries: featherless ? 2 : 1,
         providerOptions: chatOptions,
       });
       return text;
@@ -163,16 +215,15 @@ export function createModels(config: Config = getConfig()): Models {
         temperature: 0,
         maxRetries: 2,
         experimental_repairText: async ({ text }) => repairJson(text),
+        ...(featherless ? { maxOutputTokens: 700 } : {}),
         providerOptions: objectOptions,
       });
       return object;
     },
 
     async embedQuery(text) {
-      const vectors = await embedDocs([{ text }]);
-      const [vector] = vectors;
-      if (!vector) throw new Error('Ollama returned no embedding for the query');
-      return vector;
+      // Ollama/EmbeddingGemma: the caller already applied `queryPrompt`. Featherless/Qwen3: instruction added here.
+      return featherless ? embedQueryRaw(text) : (await embedDocs([{ text }]))[0]!;
     },
 
     async embedDocuments(docs) {

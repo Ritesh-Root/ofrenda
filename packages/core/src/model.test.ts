@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { getConfig } from './config.js';
-import { createModels, documentPrefix, hasModel, ollamaStatus, queryPrompt } from './model.js';
+import { loadConfig } from './config.js';
+import { createModels, documentPrefix, fitDimensions, hasModel, ollamaStatus, queryPrompt } from './model.js';
 
-const config = getConfig();
+// These suites exercise the local path; the Featherless path is covered by the eval.
+const config = loadConfig({ ...process.env, OFRENDA_PROVIDER: 'ollama', OFRENDA_MODEL: '', OFRENDA_EMBED_MODEL: '' });
 const status = await ollamaStatus(config);
 const hasModels = hasModel(status, config.embedModel);
 
@@ -18,6 +19,17 @@ describe('EmbeddingGemma prompts', () => {
     );
     expect(documentPrefix(undefined, 'No title here')).toBe('title: none | text: No title here');
     expect(documentPrefix('   ', 'Blank title')).toBe('title: none | text: Blank title');
+  });
+});
+
+describe('fitDimensions', () => {
+  it('cuts a Matryoshka vector to 768 dimensions and re-normalises it', () => {
+    const v = fitDimensions(Array.from({ length: 1024 }, (_, i) => (i % 7) - 3));
+    expect(v).toHaveLength(768);
+    expect(Math.hypot(...v)).toBeCloseTo(1, 6);
+  });
+  it('refuses a vector that is too short', () => {
+    expect(() => fitDimensions([1, 2, 3])).toThrow(/3 dimensions/);
   });
 });
 

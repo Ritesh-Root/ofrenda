@@ -3,46 +3,169 @@
   "groups": [
     {
       "kind": "food",
-      "label": { "en": "On her table", "es": "En su mesa" },
+      "label": {
+        "en": "On her table",
+        "es": "En su mesa"
+      },
       "items": [
-        { "id": "mole-negro", "name": "Mole negro", "note": "Started before the 7 o'clock bells, every Sunday", "from": ["m1"] },
-        { "id": "chocolate-de-agua", "name": "Chocolate de agua", "note": "Ground with cinnamon and almond at her stall", "from": ["m2", "m4"] },
-        { "id": "pan-de-yema", "name": "Pan de yema", "note": "How she paid Tío Chucho for carrying sacks", "from": ["m2"] },
-        { "id": "tlayudas", "name": "Tlayudas and oranges", "note": "Packed for the walk up to Monte Albán", "from": ["m5"] },
-        { "id": "pan-de-muerto", "name": "One small pan de muerto", "note": "On the floor tier, for Canelo", "from": ["m6"] }
+        {
+          "id": "mole-negro",
+          "name": "Mole negro",
+          "note": "Started before the 7 o'clock bells, every Sunday",
+          "from": [
+            "m1"
+          ]
+        },
+        {
+          "id": "chocolate-de-agua",
+          "name": "Chocolate de agua",
+          "note": "Ground with cinnamon and almond at her stall",
+          "from": [
+            "m2",
+            "m4"
+          ]
+        },
+        {
+          "id": "pan-de-yema",
+          "name": "Pan de yema",
+          "note": "How she paid Tío Chucho for carrying sacks",
+          "from": [
+            "m2"
+          ]
+        },
+        {
+          "id": "tlayudas",
+          "name": "Tlayudas and oranges",
+          "note": "Packed for the walk up to Monte Albán",
+          "from": [
+            "m5"
+          ]
+        },
+        {
+          "id": "pan-de-muerto",
+          "name": "One small pan de muerto",
+          "note": "On the floor tier, for Canelo",
+          "from": [
+            "m6"
+          ]
+        }
       ]
     },
     {
       "kind": "song",
-      "label": { "en": "What she sang", "es": "Lo que cantaba" },
+      "label": {
+        "en": "What she sang",
+        "es": "Lo que cantaba"
+      },
       "items": [
-        { "id": "cancion-mixteca", "name": "Canción Mixteca", "note": "Washing dishes, flat on the high part", "from": ["m3"] }
+        {
+          "id": "cancion-mixteca",
+          "name": "Canción Mixteca",
+          "note": "Washing dishes, flat on the high part",
+          "from": [
+            "m3"
+          ]
+        },
+        {
+          "id": "la-llorona",
+          "name": "La Llorona",
+          "note": "Sung quietly, for the ones who are gone",
+          "from": [
+            "m10"
+          ]
+        }
       ]
     },
     {
       "kind": "place",
-      "label": { "en": "Where she went", "es": "Por donde andaba" },
+      "label": {
+        "en": "Where she went",
+        "es": "Por donde andaba"
+      },
       "items": [
-        { "id": "mercado-20-de-noviembre", "name": "Mercado 20 de Noviembre", "note": "Her stall, 1961 to 2004", "from": ["m2"] },
-        { "id": "santo-domingo", "name": "Santo Domingo", "note": "The bells that started the mole", "from": ["m1"] },
-        { "id": "monte-alban", "name": "Monte Albán", "note": "First Sunday of every year", "from": ["m5"] }
+        {
+          "id": "mercado-20-de-noviembre",
+          "name": "Mercado 20 de Noviembre",
+          "note": "Her stall, 1961 to 2004",
+          "from": [
+            "m2",
+            "m9"
+          ]
+        },
+        {
+          "id": "santo-domingo",
+          "name": "Santo Domingo",
+          "note": "The bells that started the mole",
+          "from": [
+            "m1"
+          ]
+        },
+        {
+          "id": "monte-alban",
+          "name": "Monte Albán",
+          "note": "First Sunday of every year",
+          "from": [
+            "m5"
+          ]
+        }
       ]
     },
     {
       "kind": "saying",
-      "label": { "en": "What she used to say", "es": "Lo que decía" },
+      "label": {
+        "en": "What she used to say",
+        "es": "Lo que decía"
+      },
       "items": [
-        { "id": "al-mal-tiempo", "name": "Al mal tiempo, buena cara", "note": "Then go wash your face", "from": ["m4"] },
-        { "id": "mas-tiempo-que-vida", "name": "Hay más tiempo que vida", "note": "Said while walking slowly to mass", "from": ["m7"] }
+        {
+          "id": "al-mal-tiempo",
+          "name": "Al mal tiempo, buena cara",
+          "note": "Then go wash your face",
+          "from": [
+            "m4"
+          ]
+        },
+        {
+          "id": "mas-tiempo-que-vida",
+          "name": "Hay más tiempo que vida",
+          "note": "Said while walking slowly to mass",
+          "from": [
+            "m7"
+          ]
+        }
       ]
     },
     {
       "kind": "ritual",
-      "label": { "en": "How she kept the ofrenda", "es": "Cómo ponía la ofrenda" },
+      "label": {
+        "en": "How she kept the ofrenda",
+        "es": "Cómo ponía la ofrenda"
+      },
       "items": [
-        { "id": "cempasuchil", "name": "Cempasúchil in paint buckets", "note": "Grown on the roof her last October", "from": ["m8"] },
-        { "id": "petal-path", "name": "A straight petal path", "note": "If the path is crooked they get lost", "from": ["m8"] },
-        { "id": "canelo", "name": "Canelo, her childhood dog", "note": "Still gets his bread", "from": ["m6"] }
+        {
+          "id": "cempasuchil",
+          "name": "Cempasúchil in paint buckets",
+          "note": "Grown on the roof her last October",
+          "from": [
+            "m8"
+          ]
+        },
+        {
+          "id": "petal-path",
+          "name": "A straight petal path",
+          "note": "If the path is crooked they get lost",
+          "from": [
+            "m8"
+          ]
+        },
+        {
+          "id": "canelo",
+          "name": "Canelo, her childhood dog",
+          "note": "Still gets his bread",
+          "from": [
+            "m6"
+          ]
+        }
       ]
     }
   ]
