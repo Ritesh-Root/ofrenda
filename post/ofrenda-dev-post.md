@@ -117,7 +117,7 @@ Each Featherless model also costs 1, 2 or 4 "concurrency units" against the plan
 
 ### Built by open models, too
 
-Hermes Agent, running DeepSeek V4.1 Flash, built the first two tasks from written briefs: the workspace, and the whole core (config, offline guard, schema, hybrid search, the grounded-answer guard, ingest, the eval). That's about 3,300 lines with 45 tests. On the second brief it hit its 150-step limit, then crashed on the retry. I reviewed and kept its code, and finished the web app, voice, two truths and calavera with Claude Code so I could ship before the deadline.
+Hermes Agent, running DeepSeek V4.1 Flash, built the first two tasks from written briefs: the workspace, and the whole core (config, offline guard, schema, hybrid search, the grounded-answer guard, ingest, the eval). That's about 3,300 lines with 45 tests. On the second brief it hit its 150-step limit, then crashed on the retry. I reviewed and kept its code, and finished the web app, voice, two truths and calavera with an AI coding assistant so I could ship before the deadline.
 
 ### The honesty eval
 

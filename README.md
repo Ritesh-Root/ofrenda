@@ -45,7 +45,7 @@ pnpm --filter @ofrenda/core eval                      # the 12-question honesty 
 
 ## Built with
 - Workspace and core (config, offline guard, schema, hybrid search, grounded answer, ingest) written by
-  **Hermes Agent** on DeepSeek-V4.1-Flash from the task briefs in `docs/tasks/`; the rest with Claude Code.
+  **Hermes Agent** on DeepSeek-V4.1-Flash from the task briefs in `docs/tasks/`.
 - Design system and mockups: `design/` (see `design/DESIGN.md`). Picture credits are in the page footer.
 
 MIT licensed.

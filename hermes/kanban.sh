@@ -53,7 +53,7 @@ $(cat "docs/tasks/$brief")"
   args=(kanban --board "$BOARD" create "$title" --body "$body" --assignee "$ASSIGNEE"
         --workspace "dir:$REPO" --max-runtime "$runtime" --max-retries 2
         --model "$MODEL" --provider "$PROVIDER" --idempotency-key "ofrenda-$key"
-        --created-by claude --json)
+        --created-by ritesh --json)
   IFS=',' read -ra sk <<<"$skills"
   for s in "${sk[@]}"; do args+=(--skill "$s"); done
   case "$key" in
