@@ -15,3 +15,6 @@ models/
 *.gguf
 # keep design screenshots out of git; regenerate with inspect.mjs
 design/.taste-skill/
+
+# whisper output next to audio
+*.wav.txt
