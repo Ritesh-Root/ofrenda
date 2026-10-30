@@ -83,9 +83,14 @@ const REPORTING = ['says', 'said', 'claims', 'remembers', 'recalls', 'dice', 'di
 export function stripSpeaker(says: string, teller: string | null): string {
   let out = says.trim();
   const names = (teller ?? '').split(/[()]/).map((n) => n.trim()).filter(Boolean);
+  // Plain string comparison (no RegExp built from data): drop a leading "Name", then a ":" or a reporting verb.
   for (const name of names) {
-    const re = new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(?::|says|said|dice|recuerda)?\\s*`, 'i');
-    out = out.replace(re, '');
+    if (out.toLowerCase().startsWith(name.toLowerCase())) {
+      out = out.slice(name.length).trimStart();
+      for (const lead of [':', 'says', 'said', 'dice', 'recuerda']) {
+        if (out.toLowerCase().startsWith(lead)) { out = out.slice(lead.length).trimStart(); break; }
+      }
+    }
   }
   return out.replace(/^["“'‘]+|["”'’]+$/g, '').trim();
 }

@@ -105,7 +105,7 @@ I wanted the strongest open model for the calavera, so I tried the newest flagsh
 | DeepSeek V4.1 Flash, reasoning on | 15 s, 4,000 tokens of reasoning (11,000 characters), `finish_reason: length`, no verse |
 | DeepSeek V4.1 Flash, reasoning off | **4.6 s, five rhymed quatrains, only the family's details** |
 
-The fix was a chat-template switch (`chat_template_kwargs: {thinking: false}`), set per job. I lost twenty minutes first blaming my JSON schema; the raw response, with `completion_tokens: 4000` and an empty `content`, is what told the truth.
+The fix was a chat-template switch (`chat_template_kwargs: {thinking: false}`), set per job. I blamed my JSON schema first; the raw response, with `completion_tokens: 4000` and an empty `content`, is what told the truth.
 
 Each Featherless model also costs 1, 2 or 4 "concurrency units" against the plan, so the app answers and compares in parallel through a small queue that never asks for more units than the plan has.
 

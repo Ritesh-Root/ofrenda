@@ -221,7 +221,7 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     const status = error instanceof HttpError ? error.status : 500;
     const message = error instanceof Error ? error.message : String(error);
-    if (status >= 500) console.error(`[ofrenda] ${req.method} ${url.pathname}:`, message);
+    if (status >= 500) console.error('[ofrenda] %s %s: %s', req.method, url.pathname, message);
     json(res, status, { error: status >= 500 ? 'The ofrenda could not answer just now. Try again in a moment.' : message });
   }
 });
