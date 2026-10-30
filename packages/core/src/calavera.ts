@@ -11,13 +11,16 @@
 import { z } from 'zod';
 
 import { getPerson, listMemories } from './db/queries.js';
+import { getConfig } from './config.js';
 import { createModels, type Models } from './model.js';
 
 export const calaveraSchema = z.object({
   title: z.string().describe('Spanish title in broadsheet style, e.g. "La Calavera de Doña Rosa"'),
-  es: z.array(z.string()).min(3).max(5).describe('three to five Spanish quatrains, lines separated by \\n, rhyming'),
-  en: z.array(z.string()).min(3).max(5).describe('the same quatrains translated to English, lines separated by \\n'),
-  memoryIds: z.array(z.string()).min(1).describe('ids of the memories each detail came from'),
+  // No minItems/maxItems: Featherless's structured-output decoder returns nothing when they are set.
+  // The stanza count is enforced after parsing instead.
+  es: z.array(z.string()).describe('four Spanish quatrains, each one string with its four lines separated by newlines, rhyming'),
+  en: z.array(z.string()).describe('the same four quatrains translated to English, same shape'),
+  memoryIds: z.array(z.string()).describe('ids of the memories the details came from'),
 });
 export type Calavera = z.infer<typeof calaveraSchema>;
 
@@ -41,21 +44,26 @@ export function inventedNames(calavera: Calavera, memories: { title: string; bod
   return [...new Set(words)].filter((w) => !allowed.has(w.toLowerCase()) && !corpus.includes(w.toLowerCase()));
 }
 
-export async function writeCalavera(personId: string, options: { models?: Models } = {}): Promise<Calavera & { invented: string[] }> {
+export async function writeCalavera(personId: string, options: { models?: Models } = {}): Promise<Calavera & { invented: string[]; model: string }> {
   const person = await getPerson(personId);
   if (!person) throw new Error(`No person ${personId}`);
   const memories = await listMemories(personId);
   if (memories.length === 0) throw new Error('A calavera needs at least one story.');
-  const models = options.models ?? createModels();
+  const poet = getConfig().poetModel;
+  const models = options.models ?? createModels(getConfig(), { model: poet, thinking: false });
   const raw = await models.generateObject({
     schema: calaveraSchema,
     system: CALAVERA_SYSTEM,
     schemaName: 'calavera',
+    maxOutputTokens: 4000,
     prompt: buildCalaveraPrompt(person.name, memories.map((m) => ({ id: m.id, title: m.title, body: m.body }))),
   });
+  if (raw.es.length < 2 || raw.en.length < 2) throw new Error('The calavera came back too short; not shown.');
+  raw.es = raw.es.slice(0, 5);
+  raw.en = raw.en.slice(0, 5);
   const ids = new Set(memories.map((m) => m.id));
   const memoryIds = raw.memoryIds.filter((id) => ids.has(id));
   if (memoryIds.length === 0) throw new Error('The calavera cited no real memory; not shown.');
   const calavera = { ...raw, memoryIds };
-  return { ...calavera, invented: inventedNames(calavera, memories, person.name) };
+  return { ...calavera, invented: inventedNames(calavera, memories, person.name), model: poet };
 }

@@ -60,7 +60,7 @@ async function fullAnswer(personId: string, question: string) {
   return { ...answer, truths, ask };
 }
 
-const calaveraCache = new Map<string, { at: number; value: Calavera & { invented: string[] } }>();
+const calaveraCache = new Map<string, { at: number; value: Calavera & { invented: string[]; model: string } }>();
 
 async function body(req: IncomingMessage): Promise<Buffer> {
   const chunks: Buffer[] = [];
@@ -229,5 +229,5 @@ const server = createServer(async (req, res) => {
 const port = Number(process.env.PORT ?? 4321);
 server.listen(port, process.env.HOST ?? "127.0.0.1", () => {
   const c = getConfig();
-  console.log(`Ofrenda on http://127.0.0.1:${port}  ·  ${c.provider} · ${c.model} · ${c.embedModel}`);
+  console.log(`Ofrenda on http://127.0.0.1:${port}  ·  ${c.provider} · answers ${c.model} · truths ${c.deepModel} · calavera ${c.poetModel} · search ${c.embedModel}`);
 });

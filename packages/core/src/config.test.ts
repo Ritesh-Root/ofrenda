@@ -15,7 +15,9 @@ describe('config', () => {
       provider: 'featherless',
       ollamaUrl: 'http://127.0.0.1:11434',
       model: 'google/gemma-4-31B-it',
-      embedModel: 'Qwen/Qwen3-Embedding-0.6B',
+      embedModel: 'Qwen/Qwen3-Embedding-8B',
+      deepModel: 'deepseek-ai/DeepSeek-V4.1-Flash-1017',
+      poetModel: 'deepseek-ai/DeepSeek-V4.1-Flash-1017',
       stt: 'local',
       tts: 'browser',
       temporalAddress: '127.0.0.1:7233',
@@ -31,7 +33,7 @@ describe('config', () => {
   });
 
   it('ignores a model name that belongs to the other provider', () => {
-    expect(loadConfig({ OFRENDA_MODEL: 'gemma3:4b', OFRENDA_EMBED_MODEL: 'embeddinggemma' })).toMatchObject({ model: 'google/gemma-4-31B-it', embedModel: 'Qwen/Qwen3-Embedding-0.6B' });
+    expect(loadConfig({ OFRENDA_MODEL: 'gemma3:4b', OFRENDA_EMBED_MODEL: 'embeddinggemma' })).toMatchObject({ model: 'google/gemma-4-31B-it', embedModel: 'Qwen/Qwen3-Embedding-8B' });
     expect(loadConfig({ OFRENDA_MODEL: 'google/gemma-4-26B-A4B-it' }).model).toBe('google/gemma-4-26B-A4B-it');
     expect(loadConfig({ OFRENDA_PROVIDER: 'ollama', OFRENDA_MODEL: 'google/gemma-4-31B-it' }).model).toBe('gemma3:4b');
   });

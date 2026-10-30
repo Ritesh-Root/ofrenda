@@ -52,8 +52,17 @@ const optionalText = z
  * Both serve the same open weights: switching is one variable, not a rewrite.
  */
 export const PROVIDER_DEFAULTS = {
-  featherless: { model: 'google/gemma-4-31B-it', embedModel: 'Qwen/Qwen3-Embedding-0.6B' },
-  ollama: { model: 'gemma3:4b', embedModel: 'embeddinggemma' },
+  // Answers on the newest Gemma; disagreements and the calavera on the newest DeepSeek; retrieval on
+  // the largest Qwen3 embedding model (Featherless catalogue, 2026-10-30). Qwen3.8-2.4T and Kimi-K3
+  // were tried for the calavera: both spent the whole output budget reasoning (90 s, no verse) and
+  // Qwen3.8 refuses to run with reasoning off. DeepSeek-V4.1-Flash with reasoning off wrote it in 4.6 s.
+  featherless: {
+    model: 'google/gemma-4-31B-it',
+    deepModel: 'deepseek-ai/DeepSeek-V4.1-Flash-1017',
+    poetModel: 'deepseek-ai/DeepSeek-V4.1-Flash-1017',
+    embedModel: 'Qwen/Qwen3-Embedding-8B',
+  },
+  ollama: { model: 'gemma3:4b', deepModel: 'gemma3:4b', poetModel: 'gemma3:4b', embedModel: 'embeddinggemma' },
 } as const;
 
 export const envSchema = z.object({
@@ -63,7 +72,11 @@ export const envSchema = z.object({
   FEATHERLESS_URL: z.string().trim().min(1).default('https://api.featherless.ai/v1'),
   OLLAMA_URL: z.string().trim().min(1).default('http://127.0.0.1:11434'),
   OFRENDA_MODEL: optionalText,
+  OFRENDA_DEEP_MODEL: optionalText,
+  OFRENDA_POET_MODEL: optionalText,
   OFRENDA_EMBED_MODEL: optionalText,
+  /** Concurrency units your Featherless plan allows at once (each model costs 1, 2 or 4). */
+  FEATHERLESS_CONCURRENCY: z.coerce.number().int().min(1).max(64).default(4),
   // Local compose credentials (infra/compose.yaml): user, password and database are all "ofrenda".
   DATABASE_URL: z.string().trim().min(1).default('postgres://ofrenda:ofrenda@127.0.0.1:5432/ofrenda'),
   OFRENDA_STT: z.enum(['local', 'elevenlabs']).default('local'),
@@ -91,9 +104,14 @@ export interface Config {
   offline: boolean;
   /** Offline always means `ollama`: Featherless is a cloud service. */
   provider: 'featherless' | 'ollama';
-  featherless: { apiKey?: string; url: string };
+  featherless: { apiKey?: string; url: string; concurrency: number };
   ollamaUrl: string;
+  /** Grounded answers (Gemma). */
   model: string;
+  /** Comparing tellers' versions: the strongest reasoning model. */
+  deepModel: string;
+  /** The calavera literaria: the strongest writer. */
+  poetModel: string;
   embedModel: string;
   databaseUrl: string;
   stt: Env['OFRENDA_STT'];
@@ -129,9 +147,11 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   return {
     offline,
     provider,
-    featherless: { apiKey: e.FEATHERLESS_API_KEY, url: e.FEATHERLESS_URL },
+    featherless: { apiKey: e.FEATHERLESS_API_KEY, url: e.FEATHERLESS_URL, concurrency: e.FEATHERLESS_CONCURRENCY },
     ollamaUrl: e.OLLAMA_URL,
     model: fitsProvider(provider, e.OFRENDA_MODEL) ?? PROVIDER_DEFAULTS[provider].model,
+    deepModel: fitsProvider(provider, e.OFRENDA_DEEP_MODEL) ?? PROVIDER_DEFAULTS[provider].deepModel,
+    poetModel: fitsProvider(provider, e.OFRENDA_POET_MODEL) ?? PROVIDER_DEFAULTS[provider].poetModel,
     embedModel: fitsProvider(provider, e.OFRENDA_EMBED_MODEL) ?? PROVIDER_DEFAULTS[provider].embedModel,
     databaseUrl: e.DATABASE_URL,
     stt: e.OFRENDA_STT,

@@ -37,6 +37,43 @@ export const EMBED_DIM = 768;
 export const QWEN_QUERY_INSTRUCT =
   'Instruct: Given a question about a person who has died, retrieve the family stories that answer it\nQuery:';
 
+/**
+ * Featherless plans allow a fixed number of concurrency units at once, and each model costs 1, 2 or 4
+ * (the `concurrency_cost` in its /v1/models entry). Requests over the budget are rejected, so every
+ * Featherless call waits for its units here instead. Process-wide: the web server's parallel answer +
+ * comparison, and the seed's embeddings, all share one budget.
+ */
+const KNOWN_COSTS: Record<string, number> = {
+  'google/gemma-4-31B-it': 2,
+  'google/gemma-4-26B-A4B-it': 2,
+  'Qwen/Qwen3.8-27B': 2,
+};
+export function featherlessCost(modelId: string): number {
+  return KNOWN_COSTS[modelId] ?? (/embedding/i.test(modelId) ? 1 : 4);
+}
+
+class UnitBudget {
+  private used = 0;
+  private queue: Array<() => void> = [];
+  constructor(readonly max: number) {}
+  async run<T>(cost: number, fn: () => Promise<T>): Promise<T> {
+    const need = Math.min(cost, this.max);
+    while (this.used + need > this.max) await new Promise<void>((r) => this.queue.push(r));
+    this.used += need;
+    try {
+      return await fn();
+    } finally {
+      this.used -= need;
+      this.queue.splice(0).forEach((wake) => wake());
+    }
+  }
+}
+let budget: UnitBudget | undefined;
+function featherlessBudget(max: number): UnitBudget {
+  if (!budget || budget.max !== max) budget = new UnitBudget(max);
+  return budget;
+}
+
 /** Truncate a Matryoshka embedding to `dim` and L2-normalise it. */
 export function fitDimensions(vector: number[], dim = EMBED_DIM): number[] {
   if (vector.length < dim) throw new Error(`Embedding has ${vector.length} dimensions, need ${dim}`);
@@ -70,6 +107,8 @@ export interface GenerateObjectOptions<T> {
   system?: string;
   /** Schema name shown to the model, when the provider supports it. */
   schemaName?: string;
+  /** Output ceiling for this call (Featherless). Default 700: an answer or an item list. */
+  maxOutputTokens?: number;
 }
 
 /**
@@ -132,8 +171,24 @@ export function repairJson(text: string): string | null {
 }
 
 /** Build a `Models` bound to one config (and therefore one Ollama URL and one pair of models). */
-export function createModels(config: Config = getConfig()): Models {
+export interface CreateModelsOptions {
+  /** Chat model for this job; defaults to `config.model`. */
+  model?: string;
+  /**
+   * Hybrid reasoning models (DeepSeek V4.x) spend their whole output budget on hidden reasoning when
+   * asked for a long structured answer: measured 4,000 reasoning tokens, `finish_reason: length`, no
+   * content. `false` sends Featherless the chat-template switch that turns it off (4.6 s, verse
+   * delivered). Models that require reasoning reject the switch, so it is opt-in per job.
+   */
+  thinking?: boolean;
+}
+
+export function createModels(config: Config = getConfig(), options: CreateModelsOptions = {}): Models {
   const featherless = config.provider === 'featherless';
+  const chatId = options.model ?? config.model;
+  const limit = featherless ? featherlessBudget(config.featherless.concurrency) : undefined;
+  const gate = <T>(modelId: string, fn: () => Promise<T>): Promise<T> =>
+    limit ? limit.run(featherlessCost(modelId), fn) : fn();
   let chatModel;
   let embedModel;
   type ProviderOptions = NonNullable<Parameters<typeof generateText>[0]['providerOptions']>;
@@ -151,11 +206,16 @@ export function createModels(config: Config = getConfig()): Models {
       apiKey: config.featherless.apiKey,
       supportsStructuredOutputs: true,
     });
-    chatModel = provider.chatModel(config.model);
+    chatModel = provider.chatModel(chatId);
     embedModel = provider.textEmbeddingModel(config.embedModel);
+    if (options.thinking === false) {
+      const off = { chat_template_kwargs: { thinking: false, enable_thinking: false } };
+      chatOptions = { featherless: off };
+      objectOptions = { featherless: off };
+    }
   } else {
     const ollama = createOllama({ baseURL: `${config.ollamaUrl}/api` });
-    chatModel = ollama.chat(config.model);
+    chatModel = ollama.chat(chatId);
     embedModel = ollama.embedding(config.embedModel);
 
     // 4096 tokens of context: enough for six memories plus a question, and small enough that
@@ -177,16 +237,14 @@ export function createModels(config: Config = getConfig()): Models {
 
   const embedDocs = async (docs: DocumentToEmbed[]): Promise<number[][]> => {
     if (docs.length === 0) return [];
-    const { embeddings } = await embedMany({
-      model: embedModel,
-      values: docs.map(docText),
-      maxRetries: 2,
-    });
+    const { embeddings } = await gate(config.embedModel, () =>
+      embedMany({ model: embedModel, values: docs.map(docText), maxRetries: 2 }));
     return fit(embeddings);
   };
 
   const embedQueryRaw = async (text: string): Promise<number[]> => {
-    const { embeddings } = await embedMany({ model: embedModel, values: [queryText(text)], maxRetries: 2 });
+    const { embeddings } = await gate(config.embedModel, () =>
+      embedMany({ model: embedModel, values: [queryText(text)], maxRetries: 2 }));
     const [vector] = fit(embeddings);
     if (!vector) throw new Error('The embedding model returned no vector for the query');
     return vector;
@@ -194,19 +252,19 @@ export function createModels(config: Config = getConfig()): Models {
 
   return {
     async chat(prompt, options) {
-      const { text } = await generateText({
+      const { text } = await gate(chatId, () => generateText({
         model: chatModel,
         prompt,
         ...(options?.system ? { system: options.system } : {}),
         temperature: featherless ? 0.7 : 0,
         maxRetries: featherless ? 2 : 1,
         providerOptions: chatOptions,
-      });
+      }));
       return text;
     },
 
-    async generateObject<T>({ schema, prompt, system, schemaName }: GenerateObjectOptions<T>) {
-      const { object } = await generateObject({
+    async generateObject<T>({ schema, prompt, system, schemaName, maxOutputTokens }: GenerateObjectOptions<T>) {
+      const { object } = await gate(chatId, () => generateObject({
         model: chatModel,
         schema,
         prompt,
@@ -215,9 +273,9 @@ export function createModels(config: Config = getConfig()): Models {
         temperature: 0,
         maxRetries: 2,
         experimental_repairText: async ({ text }) => repairJson(text),
-        ...(featherless ? { maxOutputTokens: 700 } : {}),
+        ...(featherless ? { maxOutputTokens: maxOutputTokens ?? 700 } : {}),
         providerOptions: objectOptions,
-      });
+      }));
       return object;
     },
 

@@ -16,14 +16,15 @@ import { z } from 'zod';
 
 import { contentWords } from './answer.js';
 import { listTellers } from './db/queries.js';
+import { getConfig } from './config.js';
 import { createModels, type Models } from './model.js';
 import { searchMemories, type MemoryHit } from './search.js';
 
 export const truthsSchema = z.object({
   conflict: z.boolean().describe('true only if two different tellers give different answers to the question'),
-  about: z.string().default('').describe('what they disagree about, in a few words, in the language of the question'),
+  about: z.string().default('').describe('what they disagree about, 2 to 6 words, in the language of the question, e.g. "the year the stall opened"'),
   versions: z
-    .array(z.object({ memoryId: z.string(), says: z.string().describe("that teller's version, quoted or closely paraphrased from the memory") }))
+    .array(z.object({ memoryId: z.string(), says: z.string().describe("that teller's own words copied verbatim from their memory, 5 to 30 words, in the memory's language, without the teller's name") }))
     .default([]),
 });
 export type TruthsRaw = z.infer<typeof truthsSchema>;
@@ -43,11 +44,13 @@ export interface Truths {
 export const TRUTHS_SYSTEM = `You compare family memories about a person who has died.
 Given a question and memories (each with an id and the relative who told it), decide whether DIFFERENT relatives give DIFFERENT answers to that question (a different year, a different song, a different place, a different reason).
 Details that merely add to each other are not a conflict. One relative is never in conflict with themself.
-If there is a conflict, give each relative's version in their own words from their memory, with its memory id. Never decide who is right.
+If there is a conflict, give one version per relative: copy their own words VERBATIM from their memory (a phrase of 5 to 30 words, in the language the memory is written in, do not translate, do not add their name), with its memory id. Say in a few words what they disagree about. Never decide who is right.
 Return JSON only.`;
 
 export function buildTruthsPrompt(question: string, hits: MemoryHit[]): string {
-  const list = hits.map((h) => `[${h.id}] told by ${h.teller ?? 'unknown'} — ${h.title}\n${h.body}`).join('\n\n');
+  const list = hits
+    .map((h) => `[${h.id}] told by ${h.teller ?? 'unknown'}${h.year ? `, remembering ${h.year}` : ''} — ${h.title}\n${h.body}`)
+    .join('\n\n');
   return `Question: ${question}\n\nMemories:\n\n${list}`;
 }
 
@@ -61,14 +64,30 @@ export function checkTruths(raw: TruthsRaw, hits: MemoryHit[]): Truths {
   for (const v of raw.versions) {
     const hit = byId.get(v.memoryId);
     if (!hit || !hit.teller || tellers.has(hit.teller)) continue;
-    const said = contentWords(v.says);
+    const says = stripSpeaker(v.says, hit.teller);
+    const ignore = new Set([...contentWords(hit.teller), ...REPORTING]);
+    const said = contentWords(says).filter((w) => !ignore.has(w));
     const body = new Set(contentWords(hit.body));
     const grounded = said.length > 0 && said.filter((w) => body.has(w)).length / said.length >= 0.6;
     if (!grounded) continue;
     tellers.add(hit.teller);
-    versions.push({ memoryId: hit.id, title: hit.title, teller: hit.teller, says: v.says.trim() });
+    versions.push({ memoryId: hit.id, title: hit.title, teller: hit.teller, says });
   }
   return versions.length >= 2 ? { conflict: true, about: raw.about.trim(), versions } : none;
+}
+
+/** Reporting words a model wraps around a quote; never evidence of anything. */
+const REPORTING = ['says', 'said', 'claims', 'remembers', 'recalls', 'dice', 'dijo', 'recuerda', 'cuenta'];
+
+/** "Mateo: …", "Ana Sofía says …", quotes around the whole thing: keep only the teller's words. */
+export function stripSpeaker(says: string, teller: string | null): string {
+  let out = says.trim();
+  const names = (teller ?? '').split(/[()]/).map((n) => n.trim()).filter(Boolean);
+  for (const name of names) {
+    const re = new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(?::|says|said|dice|recuerda)?\\s*`, 'i');
+    out = out.replace(re, '');
+  }
+  return out.replace(/^["“'‘]+|["”'’]+$/g, '').trim();
 }
 
 export async function findTruths(
@@ -78,8 +97,8 @@ export async function findTruths(
 ): Promise<Truths> {
   const hits = options.hits ?? (await searchMemories(personId, question, { k: 6 }));
   if (new Set(hits.map((h) => h.teller).filter(Boolean)).size < 2) return { conflict: false, about: '', versions: [] };
-  const models = options.models ?? createModels();
-  const raw = await models.generateObject({ schema: truthsSchema, system: TRUTHS_SYSTEM, schemaName: 'truths', prompt: buildTruthsPrompt(question, hits) });
+  const models = options.models ?? createModels(getConfig(), { model: getConfig().deepModel, thinking: false });
+  const raw = await models.generateObject({ schema: truthsSchema, system: TRUTHS_SYSTEM, schemaName: 'truths', maxOutputTokens: 1500, prompt: buildTruthsPrompt(question, hits) });
   return checkTruths(raw, hits);
 }
 

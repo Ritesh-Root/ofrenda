@@ -35,3 +35,12 @@ describe('checkTruths', () => {
     expect(t.conflict).toBe(false);
   });
 });
+
+import { stripSpeaker } from './truths.js';
+describe('stripSpeaker', () => {
+  it('removes "Name:" and "Name says" labels and surrounding quotes', () => {
+    expect(stripSpeaker('Mateo: Abuela sang the song', 'Mateo')).toBe('Abuela sang the song');
+    expect(stripSpeaker('Ana Sofía says “Yo la oí cantar La Llorona”', 'Ana Sofía')).toBe('Yo la oí cantar La Llorona');
+    expect(stripSpeaker('Lupita: she opened it in 1959', 'Guadalupe (Lupita)')).toBe('she opened it in 1959');
+  });
+});

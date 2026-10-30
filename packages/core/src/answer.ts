@@ -144,7 +144,8 @@ export async function answerQuestion(
         memories: hits.map(toAnswerMemory),
       }),
     });
-  } catch {
+  } catch (error) {
+    console.warn(`[ofrenda] model answer failed, quoting the family instead: ${(error as Error).message.slice(0, 200)}`);
     // A failed or unparseable model call is the extreme case of "the model cannot be trusted with
     // this one": the family's own sentence is still true, cited, and already retrieved, so answer
     // with it rather than reporting a crash as "nobody told the ofrenda". (Measured on the seed,
@@ -153,7 +154,9 @@ export async function answerQuestion(
     return extractive(hits, input.question);
   }
 
-  return judge(modelAnswer, hits, input.question, [personName]);
+  // The tellers' names are known too: "Lupita remembers..." is attribution, not invention.
+  const tellers = hits.map((hit) => hit.teller).filter((t): t is string => !!t);
+  return judge(modelAnswer, hits, input.question, [personName, ...tellers]);
 }
 
 /**
@@ -211,7 +214,9 @@ export function inventedTerms(answer: string, bodies: string[], knownNames: stri
   }
 
   const found: string[] = [];
-  for (const word of answer.match(/\b[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\b/g) ?? []) {
+  // A capital at the start of a sentence is grammar, not a name ("Cocinaba mole los domingos").
+  const midSentence = answer.replace(/(^|[.!?¿¡:"“]\s*)[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+/g, '$1');
+  for (const word of midSentence.match(/\b[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\b/g) ?? []) {
     // `allowed` is built through `tokenise`, which lowercases *and* strips accents; compare on the
     // same footing or a name the family really wrote ("Canción", "Albán", "Méndez") looks invented.
     if (!allowed.has(normalise(word))) found.push(word);
