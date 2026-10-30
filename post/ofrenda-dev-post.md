@@ -2,12 +2,12 @@
 title: Lupita says 1959. Tío Chucho says 1961. The ofrenda keeps both.
 published: false
 tags: devchallenge, hf26challenge, opensource, ai
-cover_image: {{COVER_IMAGE_URL}}
+cover_image: https://raw.githubusercontent.com/Ritesh-Root/ofrenda/main/post/media/cover.png
 ---
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 4: Ghost in the Machine](https://dev.to/challenges/hacktoberfest-week4-2026-10-26)*
 
-![Two relatives remember the same year differently, and the ofrenda shows both](https://{{GIF_URL}})
+![Two relatives remember the same year differently, and the ofrenda shows both](https://raw.githubusercontent.com/Ritesh-Root/ofrenda/main/post/media/two-truths.gif)
 
 Every family has the argument. Somebody says the stall opened in 1959, the year they rebuilt the market roof. Somebody else, who was nine at the time and has never once conceded a point, says 1961. They have it every November, at the same table, in front of the same photograph.
 
@@ -21,7 +21,7 @@ So when I built an ofrenda that answers questions about someone who has died, I 
 
 The demo ofrenda belongs to **Rosa Elena Méndez Cruz (1938–2019)**, who sold chocolate from the same stall in Oaxaca's Mercado 20 de Noviembre for forty-three years. Rosa and her four storytellers are fictional; I wrote their ten stories so the demo has no real family's data in it. Everything the ofrenda does with them is real.
 
-![Rosa's ofrenda: a memorial card under papel picado](https://{{SCREENSHOT_HERO}})
+![Rosa's ofrenda: a memorial card under papel picado](https://raw.githubusercontent.com/Ritesh-Root/ofrenda/main/post/media/hero.jpg)
 
 You can:
 
@@ -48,7 +48,7 @@ The video is 73 seconds. Every answer in it is a real response from the running 
 
 ## Code
 
-{% embed https://github.com/{{GITHUB_REPO}} %}
+{% embed https://github.com/Ritesh-Root/ofrenda %}
 
 ```bash
 pnpm i
@@ -141,8 +141,6 @@ The 4B's one miss: asked for her favourite color, it quoted Ana's story about a 
 **Where closed would have been easier:** a single frontier API would have answered faster than the 2–34 seconds Gemma 4 takes here through a shared host, and I wouldn't have had to learn which chat-template flag turns DeepSeek's thinking off. For a memorial, I'll take slower and mine.
 
 ## The Spirit of It
-
-{{REAL_MOMENT: replace this paragraph if you try it with a real family story. What did someone say when the ofrenda credited them? If not, keep the paragraph below.}}
 
 The moment it landed for me was a test question I didn't expect to matter: *"What did she sing while washing the dishes?"* The ofrenda answered with Mateo's "Canción Mixteca," then quietly added that Ana Sofía remembers "La Llorona, siempre La Llorona, y bajito," because, Ana says, that's how you sing to the ones who are gone. Two grandchildren, the same sink, two songs. Neither of them is wrong, and nothing in the machine gets to pretend one of them is.
 
