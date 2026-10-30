@@ -16,7 +16,6 @@
 
   function show(c) {
     current = c;
-    title.textContent = c.title;
     es.innerHTML = stanzas(c.es);
     en.innerHTML = stanzas(c.en);
     const n = c.memoryIds.length;

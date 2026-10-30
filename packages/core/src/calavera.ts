@@ -44,6 +44,17 @@ export function inventedNames(calavera: Calavera, memories: { title: string; bod
   return [...new Set(words)].filter((w) => !allowed.has(w.toLowerCase()) && !corpus.includes(w.toLowerCase()));
 }
 
+/**
+ * Models return stanzas either as one string per quatrain ("line\nline\nline\nline") or as one
+ * string per line. Normalise to quatrains: split everything into lines, drop blanks, group by four.
+ */
+export function toQuatrains(parts: string[]): string[] {
+  const lines = parts.flatMap((p) => p.split(/\n+/)).map((l) => l.trim()).filter(Boolean);
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i += 4) out.push(lines.slice(i, i + 4).join('\n'));
+  return out;
+}
+
 export async function writeCalavera(personId: string, options: { models?: Models } = {}): Promise<Calavera & { invented: string[]; model: string }> {
   const person = await getPerson(personId);
   if (!person) throw new Error(`No person ${personId}`);
@@ -58,9 +69,9 @@ export async function writeCalavera(personId: string, options: { models?: Models
     maxOutputTokens: 4000,
     prompt: buildCalaveraPrompt(person.name, memories.map((m) => ({ id: m.id, title: m.title, body: m.body }))),
   });
+  raw.es = toQuatrains(raw.es).slice(0, 5);
+  raw.en = toQuatrains(raw.en).slice(0, 5);
   if (raw.es.length < 2 || raw.en.length < 2) throw new Error('The calavera came back too short; not shown.');
-  raw.es = raw.es.slice(0, 5);
-  raw.en = raw.en.slice(0, 5);
   const ids = new Set(memories.map((m) => m.id));
   const memoryIds = raw.memoryIds.filter((id) => ids.has(id));
   if (memoryIds.length === 0) throw new Error('The calavera cited no real memory; not shown.');

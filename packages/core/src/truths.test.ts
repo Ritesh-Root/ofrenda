@@ -44,3 +44,13 @@ describe('stripSpeaker', () => {
     expect(stripSpeaker('Lupita: she opened it in 1959', 'Guadalupe (Lupita)')).toBe('she opened it in 1959');
   });
 });
+
+import { toQuatrains } from './calavera.js';
+describe('toQuatrains', () => {
+  it('groups one-line-per-item output into four-line stanzas', () => {
+    expect(toQuatrains(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])).toEqual(['a\nb\nc\nd', 'e\nf\ng\nh']);
+  });
+  it('keeps stanza-per-item output as it is', () => {
+    expect(toQuatrains(['a\nb\nc\nd', 'e\nf\ng\nh\n'])).toEqual(['a\nb\nc\nd', 'e\nf\ng\nh']);
+  });
+});

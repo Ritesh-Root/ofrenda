@@ -485,3 +485,9 @@ main { position: relative; z-index: 1; background: var(--paper); }
   .pliego-actions { grid-template-columns: 1fr; }
   .mic { width: 100%; justify-content: center; }
 }
+
+.menu-group li.is-new .who { color: var(--field); font-weight: 600; }
+
+/* calavera and altar share the night field: one gap between them, not two */
+.calavera { padding-bottom: 96px; }
+.calavera + .altar { padding-top: 0; }
