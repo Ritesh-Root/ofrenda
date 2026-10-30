@@ -42,7 +42,7 @@ That's my reading of *Ghost in the Machine*: not a ghost that pretends to be Ros
 
 ## Demo
 
-{% embed {{YOUTUBE_URL}} %}
+{% embed https://youtu.be/bQjLEzw1smM %}
 
 The video is 73 seconds. Every answer in it is a real response from the running app, captured by a headless browser while the models answered.
 
