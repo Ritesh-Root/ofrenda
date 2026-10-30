@@ -16,8 +16,8 @@ import { createModels, type Models } from './model.js';
 
 export const calaveraSchema = z.object({
   title: z.string().describe('Spanish title in broadsheet style, e.g. "La Calavera de Doña Rosa"'),
-  // No minItems/maxItems: Featherless's structured-output decoder returns nothing when they are set.
-  // The stanza count is enforced after parsing instead.
+  // Stanza count is enforced after parsing (toQuatrains), not in the schema, so a model that returns one
+  // line per item instead of one stanza per item is regrouped rather than rejected.
   es: z.array(z.string()).describe('four Spanish quatrains, each one string with its four lines separated by newlines, rhyming'),
   en: z.array(z.string()).describe('the same four quatrains translated to English, same shape'),
   memoryIds: z.array(z.string()).describe('ids of the memories the details came from'),

@@ -103,7 +103,9 @@ export async function runEval(personId = 'rosa-mendez'): Promise<EvalResult> {
     const invented = inventedTerms(
       answer.answer,
       cited.map((id) => bodyById.get(id) ?? ''),
-      person ? [person.name] : [],
+      // Same rule as the guard in answer.ts: the person's name and the cited stories' tellers are known
+      // ("Ana remembers…" is attribution). Stricter than the guard: only tellers of *cited* stories count.
+      [...(person ? [person.name] : []), ...answer.citations.map((c) => c.teller).filter((t): t is string => !!t)],
     );
 
     rows.push({
