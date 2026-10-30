@@ -1,66 +1,51 @@
 # Ofrenda
 
-An altar that answers only with what your family remembers. A local-first digital ofrenda for
-Día de los Muertos, on open-weight models (Gemma via Ollama), built for the DEV Hacktoberfest
-Week 4 challenge "Ghost in the Machine".
+**An altar that answers only with what your family remembers, says who remembered it, and keeps both
+versions when two people remember differently.** A Día de los Muertos memory keeper built on open-weight
+models, for the DEV Hacktoberfest Open-Source AI Challenge, Week 4: *Ghost in the Machine*.
 
-- Product and technical spec: [docs/SPEC.md](docs/SPEC.md)
-- Partner tracks: [docs/TRACKS.md](docs/TRACKS.md)
-- Design system and mockups: [design/DESIGN.md](design/DESIGN.md), open `design/mockups/index.html` through a local server
-- Build tasks (run by Hermes Agent): [docs/tasks/](docs/tasks/), board script [hermes/kanban.sh](hermes/kanban.sh)
-- Rules for agents: [AGENTS.md](AGENTS.md)
+The demo person, Rosa Elena Méndez Cruz (1938–2019), and her family are fictional.
 
-The demo person, Rosa Elena Méndez Cruz, and her family are fictional.
+## What it does
+- **Ask her ofrenda**, typed or out loud. Answers come only from the family's stories, with a candle by each
+  relative it quotes. A deterministic guard throws away any answer that cites a story it wasn't given or names
+  someone nobody mentioned, and quotes the family directly instead.
+- **Two tellers, two truths.** When Lupita says the stall opened in 1959 and Tío Chucho says 1961, both appear
+  side by side. The ofrenda doesn't decide.
+- **Nobody told it?** It names the relative most likely to know, with a button to record their answer.
+- **Her calavera.** A *calavera literaria*, the rhyming Día de los Muertos verse in which La Catrina comes for
+  someone, written from the family's own details and set as a Posada broadsheet.
+- **A voice, never hers.** ElevenLabs Scribe hears questions and recordings (it is told the family's names);
+  a stock ElevenLabs narrator reads answers aloud, and the candle flames move with the voice. Cloned voices
+  are refused in code.
 
-## Dev quickstart
+## Models (open weights, one job each)
+| Job | Model |
+|---|---|
+| Grounded answers | `google/gemma-4-31B-it` |
+| Comparing tellers, writing the calavera | `deepseek-ai/DeepSeek-V4.1-Flash-1017` (reasoning off) |
+| Retrieval | `Qwen/Qwen3-Embedding-8B` (768-d Matryoshka cut) + BM25 in Postgres, fused with RRF |
 
-Everything runs on this machine: Podman for the services, Ollama for the models, no account needed.
+Served by Featherless by default. `OFRENDA_PROVIDER=ollama` runs Gemma 3 and EmbeddingGemma on your own
+machine instead (measured 11/12 on the honesty eval on a 4 GB laptop GPU).
 
+## Run it
 ```bash
-# 1. Tools. Node 26, pnpm 11.19.0 (pinned in package.json `packageManager`, pnpm switches to it
-#    automatically), podman, ollama.
-node --version        # v26.x
-pnpm --version        # 11.19.0
-podman --version
-ollama --version
-
-# 2. Workspace. `pnpm i` is enough to start working: the CLI and the worker run their TypeScript
-#    through tsx and the web app compiles itself with Next. `pnpm build` emits the libraries to each
-#    package's dist/ with tsc, which nothing consumes yet.
 pnpm i
-pnpm -r typecheck
-pnpm -r test
-
-# 3. Services (db, openfga, temporal). Image tags are pinned in infra/compose.yaml.
-podman compose -f infra/compose.yaml up -d
-podman compose -f infra/compose.yaml ps      # all three "healthy"
-
-# 4. Models. Sequentially — the GPU has 4 GB and should never hold two chat models at once.
-ollama pull gemma3:4b
-ollama pull gemma3:1b
-ollama pull embeddinggemma
-
-# 5. Config. Every name is in .env.example, with the default and a comment per line.
-cp .env.example .env
-
-# 6. Database schema, then the seed family.
-pnpm --filter @ofrenda/core db:migrate
-pnpm --filter @ofrenda/core seed
-
-# 7. Use it.
-pnpm ofrenda ask "¿Qué comía los domingos?"
+podman compose -f infra/compose.yaml up -d db        # Postgres 17 + pgvector + pgvectorscale + pg_textsearch
+cp .env.example .env                                  # add FEATHERLESS_API_KEY and ELEVENLABS_API_KEY
+pnpm --filter @ofrenda/core seed                      # Rosa's ten stories, embedded
+pnpm --filter @ofrenda/web start                      # http://127.0.0.1:4321
+pnpm --filter @ofrenda/core eval                      # the 12-question honesty eval
 ```
 
-No key is required. With `OFRENDA_OFFLINE=1` every cloud adapter refuses to run (`OfflineError`)
-and the local path — Ollama, whisper.cpp, the browser voice — still works.
+## Honesty eval (`seed/abuela-rosa/eval.json`)
+12 questions, 4 of them unanswerable. Gemma 4 31B: **12/12** found correctly, citations 100% valid,
+**0** invented names or numbers. Gemma 3 4B locally: 11/12.
 
-### TypeScript conventions
+## Built with
+- Workspace and core (config, offline guard, schema, hybrid search, grounded answer, ingest) written by
+  **Hermes Agent** on DeepSeek-V4.1-Flash from the task briefs in `docs/tasks/`; the rest with Claude Code.
+- Design system and mockups: `design/` (see `design/DESIGN.md`). Picture credits are in the page footer.
 
-`tsconfig.base.json` sets `module`/`moduleResolution` to `nodenext`, the setting the TypeScript docs
-recommend for modern Node ESM. Two consequences for every file you add:
-
-- relative imports carry the `.js` extension even though the file is `.ts`:
-  `import { loadConfig } from './config.js'`
-- packages are imported by name (`@ofrenda/core`), never by a relative path across packages.
-
-`apps/web` is the exception and has its own tsconfig, because Next.js compiles its own code.
+MIT licensed.

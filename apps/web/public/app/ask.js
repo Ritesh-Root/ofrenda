@@ -65,10 +65,10 @@
       const who = result.ask;
       if (who) {
         const name = short(who.name);
-        lastText += lastLang === 'es' ? ` Pregúntale a ${name}.` : ` Ask ${name}, ${who.relation}.`;
+        lastText += lastLang === 'es' ? ` Pregúntale a ${name}.` : ` Ask ${name}, her ${who.relation}.`;
         answer.innerHTML = `${asked}<p class="none">${esc(lastLang === 'es' ? NONE_ES : NONE_EN)}</p>
           <div class="ask-who" style="--tint:${tint(who.name)}">
-            <p>Ask <strong>${esc(name)}</strong>, ${esc(who.relation)}.${who.because ? ` ${esc(name)} told the ofrenda “${esc(who.because)}”, the closest story to your question.` : ''}</p>
+            <p>Ask <strong>${esc(name)}</strong>, her ${esc(who.relation)}.${who.because ? ` ${esc(name)} told the ofrenda “${esc(who.because)}”, the closest story to your question.` : ''}</p>
             <a class="ask-who-btn" href="add.html?teller=${encodeURIComponent(who.tellerId)}&title=${encodeURIComponent(q)}">Record ${esc(name)}'s answer</a>
           </div>`;
         return;
